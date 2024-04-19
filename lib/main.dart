@@ -27,21 +27,24 @@ class _MainAppState extends State<MainApp> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: TabBar(
-            indicatorColor: corsim[0],
-            labelColor: corsim[0]!.withOpacity(0.8),
+      home: SafeArea(
+        top: true,
+        child: Scaffold(
+          appBar: TabBar(
+              indicatorColor: corsim[0],
+              labelColor: corsim[0]!.withOpacity(0.8),
+              controller: controller,
+              tabs: const [
+                Tab(child: Text("Registro")),
+                Tab(child: Text("Visualização"))
+              ]),
+          body: TabBarView(
             controller: controller,
-            tabs: const [
-              Tab(child: Text("Registro")),
-              Tab(child: Text("Visualização"))
-            ]),
-        body: TabBarView(
-          controller: controller,
-          children: const [
-            Registro(),
-            Visualizacao(),
-          ],
+            children: const [
+              Registro(),
+              Visualizacao(),
+            ],
+          ),
         ),
       ),
     );
