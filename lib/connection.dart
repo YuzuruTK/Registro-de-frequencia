@@ -7,8 +7,9 @@ class Connection {
     try {
       final path = getDatabasesPath();
       db = await openDatabase("$path/registro.db");
-      db.rawQuery("Select * from registro");
+      db.rawQuery("Select * from registro limit 1");
     } catch (e) {
+      onCreate();
       log(e.toString());
     }
     return db;
@@ -16,11 +17,11 @@ class Connection {
 
   static onCreate() async {
     final path = getDatabasesPath();
-    log("SOCORRO");
-    final db = await openDatabase("$path/registro.db");
+    Database db = await openDatabase("$path/registro.db");
+    db.execute("DROP TABLE IF EXISTS registro;");
+    db.close();
+    log("Table deletada");
     String sql = """
-                  --DROP TABLE IF EXISTS registro;
-
                   CREATE TABLE registro (
 	                dia TEXT,
 	                ID INTEGER NOT NULL,
@@ -29,16 +30,26 @@ class Connection {
                   CONSTRAINT registro_pk PRIMARY KEY (ID)
                   );
                 """;
-    log("Table deletada, Table Criada");
+    db = await openDatabase("$path/registro.db");
+    log("Table Criada");
     db.execute(sql);
     db.close();
   }
 
-  Future<List<Map<String, Object?>>> select() async {
+  Future<List<Map<String, Object?>>> select(
+      DateTime initialDate, DateTime finalDate) async {
     final db = await connectDb();
     // String sql = "Select * from registro";
-    final query = await db.query("registro");
+    final query = await db.query("registro",
+        where: """ DATE(dia) BETWEEN DATE(?) AND DATE(?) """,
+        whereArgs: [
+          initialDate.toIso8601String(),
+          finalDate.toIso8601String()
+        ]);
+    // final query = await db.rawQuery("""SELECT * FROM registro
+    // WHERE DATE(dia) BETWEEN DATE("${initialDate.toIso8601String()}") AND DATE("${finalDate.toIso8601String()}")""");
     db.close();
+    // log(query.toString());
     return query;
   }
 
@@ -52,19 +63,38 @@ class Connection {
     return query;
   }
 
-  insert(String dia, String horaEntrada) async {
+  insert(DateTime dia, String horaEntrada) async {
     final db = await connectDb();
-    final last_result = await lastResultSelect(db);
-    if (last_result.isNotEmpty && last_result[0]["saida"] == "") {
-      Map<String, Object?> updated_row = {
-        "ID": last_result.toList()[0]["ID"],
-        "dia": last_result.toList()[0]["dia"],
-        "entrada": last_result.toList()[0]["entrada"],
-        "saida": last_result.toList()[0]["saida"]
+    final lastResult = await lastResultSelect(db);
+    bool isOnSameTurn = true;
+    if (lastResult.isNotEmpty) {
+      final actualTurn = dia.hour < 12
+          ? 0
+          : dia.hour <= 18
+              ? 1
+              : 2;
+
+      final lastResultEntradaDate =
+          (lastResult[0]["entrada"] as String).split(":");
+      final lastResultTurn = int.parse(lastResultEntradaDate[0]) <= 12
+          ? 0
+          : int.parse(lastResultEntradaDate[0]) <= 18
+              ? 1
+              : 2;
+      isOnSameTurn = actualTurn == lastResultTurn;
+    }
+
+    // SE O ULTIMO VALOR EXISTIR E NÃO POSSUIR VALOR NA SAIDA
+    if (lastResult.isNotEmpty && lastResult[0]["saida"] == "" && isOnSameTurn) {
+      Map<String, Object?> updatedRow = {
+        "ID": lastResult.toList()[0]["ID"],
+        "dia": lastResult.toList()[0]["dia"],
+        "entrada": lastResult.toList()[0]["entrada"],
+        "saida": lastResult.toList()[0]["saida"]
       };
-      updated_row["saida"] = horaEntrada;
-      final result = await db.update("registro", updated_row,
-          where: "ID == ?", whereArgs: [updated_row["ID"]]);
+      updatedRow["saida"] = horaEntrada;
+      final result = await db.update("registro", updatedRow,
+          where: "ID == ?", whereArgs: [updatedRow["ID"]]);
       log("ATUALIZADO");
       if (result != 0) {
         db.close();
@@ -72,8 +102,8 @@ class Connection {
         log("ERRO EM ATUALIZAR");
       }
     } else {
-      final result = await db.insert(
-          "registro", {"dia": dia, "entrada": horaEntrada, "saida": ""});
+      final result = await db.insert("registro",
+          {"dia": dia.toIso8601String(), "entrada": horaEntrada, "saida": ""});
       log("INSERTED");
       if (result != 0) {
         db.close();

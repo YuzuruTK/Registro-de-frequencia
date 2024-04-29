@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:registro_de_ponto/colors.dart';
 import 'package:registro_de_ponto/connection.dart';
@@ -11,15 +13,7 @@ class Registro extends StatefulWidget {
 
 class _RegistroState extends State<Registro> {
   void showCustomSnackbar(BuildContext context, String message) {
-    final snackBar = SnackBar(
-      content: Text(message),
-      action: SnackBarAction(
-        label: 'OK',
-        onPressed: () {
-          // Some action to perform when 'OK' is pressed
-        },
-      ),
-    );
+    final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -38,17 +32,15 @@ class _RegistroState extends State<Registro> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Container(
+          SizedBox(
             height: size.height * 0.1,
             width: size.width * 0.5,
             child: ElevatedButton(
                 onPressed: () {
                   final agora = DateTime.now();
-                  // String data = "${agora.year}-${agora.month}-${agora.day}";
-                  String data = agora.toIso8601String();
                   String entrada =
                       "${agora.hour}:${agora.minute}:${agora.second}";
-                  Connection().insert(data, entrada);
+                  Connection().insert(agora, entrada);
                   showCustomSnackbar(context, "Ponto Registrado");
                 },
                 style: ButtonStyle(
@@ -62,7 +54,7 @@ class _RegistroState extends State<Registro> {
                       color: Colors.white.withOpacity(0.7)),
                 )),
           ),
-          Container(
+          SizedBox(
             height: size.height * 0.1,
             width: size.width * 0.5,
             child: ElevatedButton(
