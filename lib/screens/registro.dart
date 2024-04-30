@@ -17,6 +17,8 @@ class _RegistroState extends State<Registro> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  bool cooldown = false;
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
@@ -34,45 +36,57 @@ class _RegistroState extends State<Registro> {
         children: [
           SizedBox(
             height: size.height * 0.1,
-            width: size.width * 0.5,
-            child: ElevatedButton(
-                onPressed: () {
-                  final agora = DateTime.now();
-                  String entrada =
-                      "${agora.hour}:${agora.minute}:${agora.second}";
-                  Connection().insert(agora, entrada);
-                  showCustomSnackbar(context, "Ponto Registrado");
-                },
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStatePropertyAll(corsim[0]!.withOpacity(0.2))),
-                child: Text(
-                  "Registre o Ponto",
-                  style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white.withOpacity(0.7)),
-                )),
+            width: size.width * 0.8,
+            child: IgnorePointer(
+              ignoring: cooldown,
+              child: ElevatedButton(
+                  onPressed: () async {
+                    final agora = DateTime.now();
+                    String entrada =
+                        "${agora.hour}:${agora.minute}:${agora.second}";
+                    Connection().insert(agora, entrada);
+                    showCustomSnackbar(context, "Ponto Registrado");
+                    setState(() {
+                      cooldown = true;
+                    });
+                    await Future.delayed(const Duration(seconds: 2));
+                    setState(() {
+                      cooldown = false;
+                    });
+                  },
+                  style: ButtonStyle(
+                      backgroundColor: cooldown
+                          ? const MaterialStatePropertyAll(Colors.black54)
+                          : MaterialStatePropertyAll(
+                              corsim[0]!.withOpacity(0.2))),
+                  child: Text(
+                    cooldown ? "Registrando" : "Registre o Ponto",
+                    style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.7)),
+                  )),
+            ),
           ),
-          SizedBox(
-            height: size.height * 0.1,
-            width: size.width * 0.5,
-            child: ElevatedButton(
-                onPressed: () {
-                  Connection.onCreate();
-                  // Connection().select();
-                },
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStatePropertyAll(corsim[0]!.withOpacity(0.2))),
-                child: Text(
-                  "Primeiro Acesso",
-                  style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white.withOpacity(0.7)),
-                )),
-          )
+          // SizedBox(
+          //   height: size.height * 0.1,
+          //   width: size.width * 0.5,
+          //   child: ElevatedButton(
+          //       onPressed: () {
+          //         Connection.onCreate();
+          //         // Connection().select();
+          //       },
+          //       style: ButtonStyle(
+          //           backgroundColor:
+          //               MaterialStatePropertyAll(corsim[0]!.withOpacity(0.2))),
+          //       child: Text(
+          //         "Primeiro Acesso",
+          //         style: TextStyle(
+          //             fontSize: 25,
+          //             fontWeight: FontWeight.bold,
+          //             color: Colors.white.withOpacity(0.7)),
+          //       )),
+          // )
         ],
       ),
     );

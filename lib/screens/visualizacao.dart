@@ -46,13 +46,13 @@ class _VisualizacaoState extends State<Visualizacao> {
     List<DataColumn> getColumns() {
       List<DataColumn> columns = [];
       columns.add(
-          const DataColumn(label: SizedBox(width: 40, child: Text("Data"))));
+          const DataColumn(label: SizedBox(width: 60, child: Text("Data"))));
       columns.add(
-          const DataColumn(label: SizedBox(width: 60, child: Text("Entrada"))));
+          const DataColumn(label: SizedBox(width: 80, child: Text("Entrada"))));
       columns.add(
-          const DataColumn(label: SizedBox(width: 40, child: Text("Saida"))));
+          const DataColumn(label: SizedBox(width: 60, child: Text("Saida"))));
       columns.add(
-          const DataColumn(label: SizedBox(width: 40, child: Text("Saldo"))));
+          const DataColumn(label: SizedBox(width: 60, child: Text("Saldo"))));
       return columns;
     }
 
@@ -84,7 +84,8 @@ class _VisualizacaoState extends State<Visualizacao> {
         rows.add(DataRow(cells: [
           DataCell(Text(dia)),
           DataCell(Text(timeFormat.format(entrada))),
-          DataCell(Text(timeFormat.format(saida))),
+          DataCell(
+              Text(registros[data][1] != "" ? timeFormat.format(saida) : "")),
           DataCell(Text(saldo.toString().split('.').first.padLeft(8, "0")))
         ]));
       }

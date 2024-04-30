@@ -7,10 +7,10 @@ class Connection {
     try {
       final path = getDatabasesPath();
       db = await openDatabase("$path/registro.db");
-      db.rawQuery("Select * from registro limit 1");
+      final testquery = await db.rawQuery("Select * from registro limit 1");
     } catch (e) {
-      onCreate();
       log(e.toString());
+      onCreate();
     }
     return db;
   }
@@ -18,7 +18,7 @@ class Connection {
   static onCreate() async {
     final path = getDatabasesPath();
     Database db = await openDatabase("$path/registro.db");
-    db.execute("DROP TABLE IF EXISTS registro;");
+    // db.execute("DROP TABLE IF EXISTS registro;");
     db.close();
     log("Table deletada");
     String sql = """
@@ -68,19 +68,11 @@ class Connection {
     final lastResult = await lastResultSelect(db);
     bool isOnSameTurn = true;
     if (lastResult.isNotEmpty) {
-      final actualTurn = dia.hour < 12
-          ? 0
-          : dia.hour <= 18
-              ? 1
-              : 2;
+      final actualTurn = dia.hour < 12 ? 0 : 1;
 
       final lastResultEntradaDate =
           (lastResult[0]["entrada"] as String).split(":");
-      final lastResultTurn = int.parse(lastResultEntradaDate[0]) <= 12
-          ? 0
-          : int.parse(lastResultEntradaDate[0]) <= 18
-              ? 1
-              : 2;
+      final lastResultTurn = int.parse(lastResultEntradaDate[0]) <= 12 ? 0 : 1;
       isOnSameTurn = actualTurn == lastResultTurn;
     }
 
