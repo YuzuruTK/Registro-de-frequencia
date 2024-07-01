@@ -67,14 +67,14 @@ class Connection {
     final db = await connectDb();
     final lastResult = await lastResultSelect(db);
     bool isOnSameTurn = true;
-    if (lastResult.isNotEmpty) {
-      final actualTurn = dia.hour < 12 ? 0 : 1;
+    // if (lastResult.isNotEmpty) {
+    //   final actualTurn = dia.hour < 12 ? 0 : 1;
 
-      final lastResultEntradaDate =
-          (lastResult[0]["entrada"] as String).split(":");
-      final lastResultTurn = int.parse(lastResultEntradaDate[0]) <= 12 ? 0 : 1;
-      isOnSameTurn = actualTurn == lastResultTurn;
-    }
+    //   final lastResultEntradaDate =
+    //       (lastResult[0]["entrada"] as String).split(":");
+    //   final lastResultTurn = int.parse(lastResultEntradaDate[0]) <= 12 ? 0 : 1;
+    //   isOnSameTurn = actualTurn == lastResultTurn;
+    // }
 
     // SE O ULTIMO VALOR EXISTIR E NÃO POSSUIR VALOR NA SAIDA
     if (lastResult.isNotEmpty && lastResult[0]["saida"] == "" && isOnSameTurn) {
