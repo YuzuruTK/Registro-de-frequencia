@@ -8,3 +8,5 @@
 ## To do:
 - [ ] Encounter a way to edit the registers
 - [ ] Make a separation between days to prevent errors
+- [ ] Make a way to export data
+- [ ] Change the table with something better

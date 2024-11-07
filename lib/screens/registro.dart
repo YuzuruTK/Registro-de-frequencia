@@ -34,6 +34,7 @@ class _RegistroState extends State<Registro> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // Botão
           SizedBox(
             height: size.height * 0.1,
             width: size.width * 0.8,
@@ -56,8 +57,8 @@ class _RegistroState extends State<Registro> {
                   },
                   style: ButtonStyle(
                       backgroundColor: cooldown
-                          ? const MaterialStatePropertyAll(Colors.black54)
-                          : MaterialStatePropertyAll(
+                          ? const WidgetStatePropertyAll(Colors.black54)
+                          : WidgetStatePropertyAll(
                               corsim[0]!.withOpacity(0.2))),
                   child: Text(
                     cooldown ? "Registrando" : "Registre o Ponto",
@@ -68,25 +69,27 @@ class _RegistroState extends State<Registro> {
                   )),
             ),
           ),
-          // SizedBox(
-          //   height: size.height * 0.1,
-          //   width: size.width * 0.5,
-          //   child: ElevatedButton(
-          //       onPressed: () {
-          //         Connection.onCreate();
-          //         // Connection().select();
-          //       },
-          //       style: ButtonStyle(
-          //           backgroundColor:
-          //               MaterialStatePropertyAll(corsim[0]!.withOpacity(0.2))),
-          //       child: Text(
-          //         "Primeiro Acesso",
-          //         style: TextStyle(
-          //             fontSize: 25,
-          //             fontWeight: FontWeight.bold,
-          //             color: Colors.white.withOpacity(0.7)),
-          //       )),
-          // )
+
+          SizedBox(
+            height: size.height * 0.1,
+            width: size.width * 0.5,
+            child: ElevatedButton(
+                onPressed: () async {
+                  final pathing = await Connection.exportDatabase();
+
+                  showCustomSnackbar(context, pathing.toString());
+                },
+                style: ButtonStyle(
+                    backgroundColor:
+                        WidgetStatePropertyAll(corsim[0]!.withOpacity(0.2))),
+                child: Text(
+                  "Exportação de Base de Dados",
+                  style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white.withOpacity(0.7)),
+                )),
+          )
         ],
       ),
     );
